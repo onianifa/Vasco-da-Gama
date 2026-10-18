@@ -1,0 +1,192 @@
+<!--
+  INDEX.HTML · a ESTRUTURA do site (HTML)
+
+  O HTML define O QUE existe na página. É feito de "tags" entre < >:
+      <h2>História</h2>   ->  título de nível 2 com o texto "História"
+  Atributos dão informações extras:
+      class="..."  -> nome para o CSS estilizar (pode repetir em vários elementos)
+      id="..."     -> nome ÚNICO, usado pelo JavaScript para achar o elemento
+
+  Várias caixas aqui estão VAZIAS de propósito (ex.: id="titulos-grid").
+  O script.js as preenche com os dados do data.js.
+      style.css -> a aparência      script.js -> as interações
+-->
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<!-- Ajusta o site à largura do celular -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vasco da Gama — Gigante da Colina</title>
+<meta name="description" content="Tudo sobre o Club de Regatas Vasco da Gama: história, títulos, camisas e escudos.">
+<!-- Fontes do Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Isometra&family=Jost:ital,wght@0,100..900;1,100..900&family=Nothing+You+Could+Do&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- MENU fixo no topo. O link da seção que está na tela fica destacado (feito pelo JS). -->
+<header class="nav" id="nav">
+  <a class="brand" href="#topo" aria-label="Início">
+    <img src="assets/escudos/escudo-logo.png" alt="" width="26" height="33">
+    <span>VASCO</span>
+  </a>
+  <nav id="menu" aria-label="Seções">
+    <span class="nav-pill" id="navPill" aria-hidden="true"></span>
+    <a href="#historia">História</a>
+    <a href="#titulos">Títulos</a>
+    <a href="#camisas">Camisas</a>
+    <a href="#escudos">Escudos</a>
+    <a href="#idolos">Ídolos</a>
+    <a href="#curiosidades">Curiosidades</a>
+  </nav>
+  <a class="btn btn-sm" href="#titulos"><span>Ver títulos</span></a>
+  <!-- Barra fina que mostra o quanto da página você já rolou -->
+  <div class="progress" id="progress"></div>
+</header>
+
+<main id="topo">
+
+  <!-- HERO: abertura com a foto do estádio, o escudo flutuante e os números -->
+  <section class="hero">
+    <div class="hero-bg" id="heroBg"></div>
+    <!-- Linhas diagonais decorativas (animadas no CSS) -->
+    <div class="streaks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+    <div class="wrapin hero-grid">
+      <div class="hero-text">
+        <p class="eyebrow">Club de Regatas Vasco da Gama · desde 1898</p>
+        <h1>Gigante<br><span>da Colina</span></h1>
+        <p class="lead">Mais de um século de história, títulos e a camisa da faixa.</p>
+        <div class="hero-cta">
+          <a class="btn btn-solid" href="#titulos"><span>Conheça os títulos</span></a>
+          <a class="btn" href="#historia"><span>Nossa história</span></a>
+        </div>
+      </div>
+      <!-- O escudo acompanha o mouse (inclinação 3D). -->
+      <div class="hero-crest" id="heroCrest">
+        <div class="glow"></div>
+        <img src="assets/escudos/escudo-logo.png" alt="Escudo do Vasco da Gama" width="380" height="483">
+      </div>
+    </div>
+
+    <!-- Números animados. data-count = valor final; o JS faz a contagem subir. -->
+    <div class="wrapin stats" id="stats">
+      <div class="stat cut"><b data-count="4">0</b><span>Brasileirões</span></div>
+      <div class="stat cut"><b data-count="1">0</b><span>Libertadores</span></div>
+      <div class="stat cut"><b data-count="24">0</b><span>Cariocas</span></div>
+      <div class="stat cut"><b data-count="1927">0</b><span>São Januário</span></div>
+    </div>
+  </section>
+
+  <!-- Faixa de texto que corre sem parar, preenchida com os títulos -->
+  <div class="ticker" aria-hidden="true"><div class="ticker-track" id="ticker"></div></div>
+
+  <!-- HISTÓRIA: escolha um ano e o painel muda -->
+  <section id="historia" class="sec">
+    <div class="wrapin">
+      <header class="sec-head rv">
+        <h2>História</h2>
+        <p class="sub"><span>Escolha um ano</span></p>
+      </header>
+      <div class="tl rv">
+        <button class="arrow" id="tlPrev" aria-label="Ano anterior">‹</button>
+        <div class="tl-years" id="tlYears" role="tablist" aria-label="Anos"></div>
+        <button class="arrow" id="tlNext" aria-label="Próximo ano">›</button>
+      </div>
+      <article class="tl-panel cut rv" id="tlPanel" aria-live="polite">
+        <div class="tl-big" id="tlBig"></div>
+        <p id="tlTxt"></p>
+        <div class="tl-bar"><i id="tlFill"></i></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- TÍTULOS: abas inclinadas filtram os cartões -->
+  <section id="titulos" class="sec alt">
+    <div class="wrapin">
+      <header class="sec-head rv">
+        <h2>Títulos</h2>
+        <p class="sub"><span>Sala de troféus</span></p>
+      </header>
+      <div class="tabs rv" id="filtros" role="tablist" aria-label="Filtrar títulos">
+        <button class="on" data-f="todos"><span>Todos</span></button>
+        <button data-f="internacional"><span>Internacionais</span></button>
+        <button data-f="nacional"><span>Nacionais</span></button>
+        <button data-f="estadual"><span>Estaduais</span></button>
+      </div>
+      <div class="cards" id="titulos-grid"></div>
+      <p class="total" id="titulos-total"></p>
+    </div>
+  </section>
+
+  <!-- CAMISAS: vitrine grande + trilho com as épocas -->
+  <section id="camisas" class="sec">
+    <div class="wrapin">
+      <header class="sec-head rv">
+        <h2>Camisas</h2>
+        <p class="sub"><span>Ao longo dos anos</span></p>
+      </header>
+      <div class="shirt-view cut rv" id="shirtView">
+        <div class="shirt-fig" id="shirtFig"></div>
+        <div class="shirt-info">
+          <span class="tag" id="shEra"></span>
+          <h3 id="shTitle"></h3>
+          <p id="shTxt"></p>
+          <div class="shirt-nav">
+            <button class="arrow" id="shPrev" aria-label="Camisa anterior">‹</button>
+            <span class="count" id="shCount"></span>
+            <button class="arrow" id="shNext" aria-label="Próxima camisa">›</button>
+          </div>
+        </div>
+      </div>
+      <div class="rail rv" id="shirtRail" role="tablist" aria-label="Épocas"></div>
+      <p class="nota">Uniformes de 1898 até hoje. Imagens ilustrativas.</p>
+    </div>
+  </section>
+
+  <!-- ESCUDOS: evolução em ordem -->
+  <section id="escudos" class="sec alt">
+    <div class="wrapin">
+      <header class="sec-head rv">
+        <h2>Escudos e logos</h2>
+        <p class="sub"><span>A evolução do símbolo</span></p>
+      </header>
+      <div class="cards crests" id="escudos-grid"></div>
+      <p class="nota">O escudo oficial é marca registrada do clube.</p>
+    </div>
+  </section>
+
+  <!-- ÍDOLOS -->
+  <section id="idolos" class="sec">
+    <div class="wrapin">
+      <header class="sec-head rv">
+        <h2>Ídolos</h2>
+        <p class="sub"><span>Quem vestiu a faixa</span></p>
+      </header>
+      <div class="cards" id="idolos-grid"></div>
+    </div>
+  </section>
+
+  <!-- CURIOSIDADES: cartões que viram ao clicar (ou passar o mouse) -->
+  <section id="curiosidades" class="sec alt">
+    <div class="wrapin">
+      <header class="sec-head rv">
+        <h2>Curiosidades</h2>
+        <p class="sub"><span>Você sabia?</span></p>
+      </header>
+      <div class="flips" id="curio"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <img src="assets/escudos/escudo-logo.png" alt="" width="40" height="51">
+  <p>Site de torcedor, sem vínculo oficial com o Club de Regatas Vasco da Gama.</p>
+</footer>
+
+<!-- A ordem importa: data.js cria os dados; script.js usa esses dados. -->
+<script src="data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

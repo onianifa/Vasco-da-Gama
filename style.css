@@ -1,0 +1,554 @@
+/* ==========================================================================
+   VASCO DA GAMA · FOLHA DE ESTILO (CSS)
+
+   O CSS define a APARÊNCIA: cores, fontes, tamanhos, posições e animações.
+   Cada bloco tem a forma   seletor { propriedade: valor; }
+     .classe = elementos com class="classe"     #id = elemento com id="id"
+
+   Índice:
+     1 Tokens            7 Hero                  13 Camisas (vitrine)
+     2 Base              8 Faixa de texto        14 Escudos
+     3 Cantos cortados   9 Cabeçalho de seção    15 Ídolos
+     4 Botões e setas   10 Linha do tempo        16 Curiosidades (flip)
+     5 Menu             11 Abas e cartões        17 Rodapé
+     6 Animações        12 Títulos               18 Celular e acessibilidade
+   ========================================================================== */
+
+
+/* 1. TOKENS ----------------------------------------------------------------
+   Variáveis CSS (começam com --). Usamos com var(--nome).
+   Mudou aqui, mudou no site inteiro. */
+:root {
+  color-scheme: dark;
+
+  --bg:    #060607;                    /* fundo principal */
+  --bg-2:  #0d0d10;                    /* seções alternadas */
+  --fg:    #f4f2ec;                    /* texto */
+  --mut:   #9d9a93;                    /* texto secundário */
+  --line:  rgba(255, 255, 255, .12);   /* linhas e bordas */
+  --acc:   #e5192d;                    /* vermelho de destaque */
+  --acc-2: #ff5a68;                    /* vermelho mais claro */
+
+  --font-display: "Jost", "Futura", "Century Gothic", sans-serif;   /* números, etiquetas e títulos dos cartões */
+  --font-title:   "Isometra", "Jost", "Futura", sans-serif;           /* títulos principais */
+  --font-script:  "Nothing You Could Do", "Segoe Script", cursive;  /* detalhes manuscritos */
+  --font-body:    "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --maxw: 1120px;
+  --gutter: max(20px, env(safe-area-inset-left, 0px));
+  --ease: .3s cubic-bezier(.2, .7, .2, 1);
+}
+
+
+/* 2. BASE ------------------------------------------------------------------ */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  line-height: 1.65;
+  overflow-x: hidden;                  /* nunca rola para os lados */
+}
+a { color: inherit; }
+img, svg { max-width: 100%; }
+button { font: inherit; color: inherit; }
+code { background: rgba(255, 255, 255, .08); padding: 2px 6px; border-radius: 4px; font-size: .9em; }
+:focus-visible { outline: 2px solid var(--acc-2); outline-offset: 3px; }
+
+h1, h2, h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+/* Contêiner que centraliza o conteúdo e limita a largura */
+.wrapin { width: min(var(--maxw), 100% - 2 * var(--gutter)); margin-inline: auto; }
+
+
+/* 3. CANTOS CORTADOS --------------------------------------------------------
+   A classe .cut cria o cartão "chanfrado" das referências.
+   Como clip-path corta também a borda, desenhamos a borda assim:
+     - o próprio elemento tem um fundo em degradê (a "borda")
+     - ::before é uma cópia 1px menor, escura, por cima (o "miolo")
+     - ::after é um brilho que segue o mouse (variáveis --mx e --my, vindas do JS)
+   --c controla o tamanho do canto cortado. */
+.cut {
+  --c: 28px;
+  position: relative;
+  background: linear-gradient(135deg, rgba(255,255,255,.3), rgba(255,255,255,.05) 45%, rgba(255,255,255,.16));
+  clip-path: polygon(0 0, calc(100% - var(--c)) 0, 100% var(--c), 100% 100%, 0 100%);
+}
+.cut::before, .cut::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  clip-path: polygon(0 0, calc(100% - var(--c)) 0, 100% var(--c), 100% 100%, 0 100%);
+  pointer-events: none;
+}
+.cut::before { background: linear-gradient(160deg, #18181b, #0c0c0e); }
+.cut::after {
+  background: radial-gradient(280px circle at var(--mx, 50%) var(--my, 0%), rgba(255,255,255,.12), transparent 65%);
+  opacity: 0;
+  transition: opacity var(--ease);
+}
+.cut:hover::after { opacity: 1; }
+.cut > * { position: relative; z-index: 1; }   /* conteúdo fica por cima do miolo */
+
+/* Efeito de inclinação 3D (o JS atualiza --rx e --ry conforme o mouse) */
+[data-tilt] {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform .18s ease-out;
+  will-change: transform;
+}
+
+/* Etiqueta numerada no canto cortado, como na referência */
+.cut > .badge {
+  position: absolute;
+  top: 0; right: 0;
+  z-index: 2;
+  min-width: 64px;
+  padding: 8px 16px 8px 20px;
+  background: var(--fg);
+  color: #000;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  border-radius: 0 0 0 16px;
+}
+
+
+/* 4. BOTÕES E SETAS --------------------------------------------------------- */
+.btn {
+  position: relative;
+  display: inline-block;
+  padding: 12px 28px;
+  border: 1px solid rgba(255,255,255,.4);
+  border-radius: 999px;
+  background: transparent;
+  font-size: .85rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--ease), color var(--ease), transform var(--ease), border-color var(--ease);
+}
+.btn:hover { background: var(--fg); color: #000; transform: translateY(-2px); }
+.btn-solid { background: var(--fg); color: #000; border-color: var(--fg); }
+.btn-solid:hover { background: var(--acc); border-color: var(--acc); color: #fff; }
+.btn-sm { padding: 8px 20px; font-size: .75rem; }
+
+.arrow {                                /* setas redondas ‹ › */
+  flex: none;
+  width: 46px; height: 46px;
+  display: grid; place-items: center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--ease), color var(--ease), transform var(--ease);
+}
+.arrow:hover { background: var(--fg); color: #000; }
+.arrow:active { transform: scale(.92); }
+
+
+/* 5. MENU ------------------------------------------------------------------ */
+/* Menu "cápsula": uma barra de vidro que flutua sobre a página.
+   - position: fixed  -> fica solta no topo, sem ocupar espaço no layout
+   - border-radius alto -> formato de pílula
+   - backdrop-filter  -> borra o que passa por trás (efeito vidro)
+   - some ao rolar para baixo e volta ao rolar para cima (classe "oculto", feita pelo JS) */
+.nav {
+  position: fixed;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(var(--maxw), 100% - 2 * var(--gutter));
+  padding: 8px 8px 8px 20px;
+  background: rgba(14, 14, 17, .6);
+  backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 999px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .08);
+  overflow: hidden;                      /* a barra de progresso respeita a curva da cápsula */
+  transform: translateX(-50%);
+  transition: transform .45s cubic-bezier(.2, .7, .2, 1), background var(--ease);
+}
+.nav.oculto { transform: translate(-50%, -160%); }      /* esconde subindo para fora da tela */
+.nav.solido { background: rgba(10, 10, 12, .85); }      /* mais escura depois que a página rola */
+
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.brand span { font-family: var(--font-display); font-size: 1.45rem; font-weight: 800; letter-spacing: .18em; }
+.brand img { height: 30px; width: auto; transition: transform var(--ease); }
+.brand:hover img { transform: rotate(-8deg) scale(1.1); }
+
+/* Links. A "pílula" (.nav-pill) é um fundo branco que DESLIZA até o link ativo
+   ou até o link sob o mouse; o JS define a posição (--x) e a largura (--w). */
+.nav nav { position: relative; display: flex; gap: 2px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.nav nav::-webkit-scrollbar { display: none; }
+.nav-pill {
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: var(--w, 0);
+  transform: translateX(var(--x, 0));
+  background: rgba(255, 255, 255, .14);
+  border-radius: 999px;
+  opacity: 0;
+  transition: transform .4s cubic-bezier(.2, .7, .2, 1), width .4s cubic-bezier(.2, .7, .2, 1), opacity .3s;
+  pointer-events: none;
+}
+.nav nav a {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  padding: 9px 16px;
+  color: var(--mut);
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color var(--ease);
+}
+.nav nav a:hover, .nav nav a.on { color: var(--fg); }
+.nav .btn { margin: 0; }
+
+.progress {                             /* barra de progresso da rolagem, na base da cápsula */
+  position: absolute;
+  left: 0; bottom: 0;
+  height: 2px; width: 0;
+  background: linear-gradient(90deg, var(--acc), var(--acc-2));
+}
+
+
+/* 6. ANIMAÇÕES --------------------------------------------------------------
+   @keyframes descreve os passos de uma animação; depois damos um nome a ela
+   com a propriedade "animation". */
+@keyframes float   { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+@keyframes pulse   { 0%, 100% { opacity: .55; transform: scale(1); } 50% { opacity: .9; transform: scale(1.08); } }
+@keyframes streak  { from { transform: translate3d(0, -20vh, 0) rotate(24deg); opacity: 0; }
+                     20% { opacity: 1; } to { transform: translate3d(-18vw, 120vh, 0) rotate(24deg); opacity: 0; } }
+@keyframes pop     { from { opacity: 0; transform: translateY(18px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes swap    { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: none; } }
+@keyframes ticker  { to { transform: translateX(-50%); } }
+
+/* Aparecer ao rolar: a classe "js" só existe se o JavaScript estiver rodando,
+   assim o site continua legível sem ele. */
+.js .rv { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s ease; }
+.js .rv.in { opacity: 1; transform: none; }
+
+
+/* 7. HERO ------------------------------------------------------------------ */
+.hero { position: relative; overflow: hidden; padding: 128px 0 56px; }   /* topo maior: o menu flutua por cima */
+
+/* Foto do estádio com camadas escuras por cima (o primeiro fundo fica por cima) */
+.hero-bg {
+  position: absolute;
+  inset: -40px 0 0;
+  background:
+    linear-gradient(180deg, rgba(6,6,7,.6) 0%, rgba(6,6,7,.78) 60%, var(--bg) 100%),
+    url("assets/fundo/torcida.jpg") center 35% / cover no-repeat;
+  background-color: var(--bg);
+  will-change: transform;
+}
+.streaks { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.streaks i {                            /* linhas diagonais finas */
+  position: absolute;
+  top: 0;
+  width: 2px; height: 90px;
+  background: linear-gradient(transparent, rgba(255,255,255,.75), transparent);
+  opacity: 0;
+  animation: streak 5s linear infinite;
+}
+.streaks i:nth-child(1) { left: 12%; animation-delay: 0s; }
+.streaks i:nth-child(2) { left: 30%; animation-delay: 1.4s; height: 60px; }
+.streaks i:nth-child(3) { left: 52%; animation-delay: 2.6s; }
+.streaks i:nth-child(4) { left: 68%; animation-delay: .8s; height: 120px; }
+.streaks i:nth-child(5) { left: 84%; animation-delay: 3.4s; height: 70px; }
+.streaks i:nth-child(6) { left: 95%; animation-delay: 2s; }
+
+.hero-grid { position: relative; display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 24px; min-height: 480px; }
+.eyebrow { margin: 0 0 16px; color: var(--mut); font-size: .8rem; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; }
+/* Título principal na fonte Isometra (só tem o peso 400, então não usamos negrito). */
+.hero h1 { font-family: var(--font-title); font-size: clamp(2.4rem, 6.6vw, 5.2rem); font-weight: 400; line-height: 1.08; letter-spacing: .01em; }
+.hero h1 span { color: var(--fg); }   /* "da Colina" em branco */
+.lead { max-width: 480px; margin: 22px 0 0; font-size: 1.2rem; color: #cfccc4; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+
+.hero-crest {
+  position: relative;
+  justify-self: center;
+  width: min(380px, 70vw);
+  perspective: 900px;
+  transform: rotateX(var(--crx, 0deg)) rotateY(var(--cry, 0deg));
+  transition: transform .2s ease-out;
+}
+.hero-crest img { position: relative; width: 100%; height: auto; filter: drop-shadow(0 30px 50px rgba(0,0,0,.7)); animation: float 6s ease-in-out infinite; }
+.hero-crest .glow {
+  position: absolute;
+  inset: 8% -10%;
+  background: radial-gradient(closest-side, rgba(255,255,255,.16), transparent);
+  filter: blur(30px);
+  animation: pulse 5s ease-in-out infinite;
+}
+
+.stats { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 36px; }
+.stat { --c: 18px; padding: 18px 22px; }
+.stat b {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;     /* dígitos com mesma largura: não "tremem" na contagem */
+}
+.stat span { color: var(--mut); font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; }
+
+
+/* 8. FAIXA DE TEXTO (ticker) ------------------------------------------------ */
+.ticker { overflow: hidden; background: var(--fg); color: #000; border-block: 1px solid #000; }
+.ticker-track { display: flex; width: max-content; animation: ticker 40s linear infinite; }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+.ticker-track span {
+  padding: 10px 28px;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ticker-track span::after { content: "/"; margin-left: 56px; color: var(--acc); }
+
+
+/* 9. CABEÇALHO DE SEÇÃO ------------------------------------------------------
+   Título grande centralizado + subtítulo com linhas laterais (como na referência). */
+.sec { padding: 96px 0; }
+.alt { background: rgba(13, 13, 16, .86); border-block: 1px solid var(--line); }   /* levemente transparente: deixa a foto de fundo aparecer */
+
+/* Foto da torcida fixa atrás de TODO o site, bem escurecida.
+   position: fixed + z-index: -1 = fica parada no fundo enquanto o conteúdo rola. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(6, 6, 7, .9), rgba(6, 6, 7, .94)),
+    url("assets/fundo/torcida.jpg") center / cover no-repeat;
+}
+
+.sec-head { display: grid; justify-items: center; gap: 14px; margin-bottom: 44px; text-align: center; }
+.sec-head h2 { font-family: var(--font-title); font-size: clamp(2rem, 6vw, 3.6rem); font-weight: 400; letter-spacing: .02em; line-height: 1.1; }
+.sub { display: flex; align-items: center; gap: 16px; width: min(420px, 100%); margin: 0; color: var(--mut); font-size: .8rem; letter-spacing: .24em; text-transform: uppercase; }
+.sub::before, .sub::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.nota { margin: 28px 0 0; color: var(--mut); font-size: .85rem; text-align: center; }
+
+
+/* 10. LINHA DO TEMPO INTERATIVA -----------------------------------------------
+   Anos em botões inclinados (skewX) + painel que troca o conteúdo. */
+.tl { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.tl-years { position: relative; display: flex; flex: 1; gap: 8px; min-width: 0; overflow-x: auto; padding: 6px 4px; scroll-snap-type: x proximity; scrollbar-width: none; }
+.tl-years::-webkit-scrollbar { display: none; }
+.tl-years button {
+  flex: none;
+  padding: 10px 22px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--line);
+  transform: skewX(-14deg);               /* inclina o botão */
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  cursor: pointer;
+  scroll-snap-align: center;
+  transition: background var(--ease), color var(--ease), transform var(--ease);
+}
+.tl-years button span { display: block; transform: skewX(14deg); }  /* desfaz a inclinação do texto */
+.tl-years button:hover { background: rgba(255,255,255,.14); }
+.tl-years button.on { background: var(--fg); color: #000; transform: skewX(-14deg) scale(1.08); }
+
+.tl-panel { --c: 40px; padding: 40px clamp(22px, 5vw, 56px) 34px; min-height: 250px; }
+.tl-big { font-family: var(--font-display); font-size: clamp(3.4rem, 11vw, 6.4rem); font-weight: 800; line-height: .9; color: transparent; -webkit-text-stroke: 2px var(--fg); }
+.tl-panel p { max-width: 62ch; margin: 14px 0 28px; font-size: 1.15rem; color: #d8d5cd; }
+.tl-panel.swap .tl-big, .tl-panel.swap p { animation: swap .45s ease both; }
+.tl-bar { height: 3px; background: rgba(255,255,255,.1); }
+.tl-bar i { display: block; height: 100%; width: 0; background: var(--acc); transition: width .5s ease; }
+
+
+/* 11. ABAS E CARTÕES ------------------------------------------------------- */
+.tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 34px; }
+.tabs button {
+  padding: 10px 28px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--line);
+  transform: skewX(-18deg);
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--ease), color var(--ease);
+}
+.tabs button span { display: block; transform: skewX(18deg); }
+.tabs button:hover { background: rgba(255,255,255,.14); }
+.tabs button.on { background: var(--fg); color: #000; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 18px; }
+.card { min-width: 0; padding: 30px 26px 26px; animation: pop .5s ease both; }
+.card:nth-child(2) { animation-delay: .05s; } .card:nth-child(3) { animation-delay: .1s; }
+.card:nth-child(4) { animation-delay: .15s; } .card:nth-child(5) { animation-delay: .2s; }
+.card h3 { margin-top: 44px; font-family: var(--font-title); font-size: 1.2rem; font-weight: 400; line-height: 1.2; letter-spacing: .02em; }
+.card p { margin: 10px 0 0; color: var(--mut); font-size: .95rem; }
+.tag { color: var(--acc-2); font-size: .72rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+
+
+/* 12. TÍTULOS --------------------------------------------------------------- */
+.anos { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 16px; }
+.anos i { padding: 2px 10px; background: rgba(255,255,255,.08); border-radius: 999px; font-size: .75rem; font-style: normal; font-variant-numeric: tabular-nums; }
+.total { margin: 26px 0 0; text-align: center; color: var(--mut); font-size: .9rem; letter-spacing: .06em; }
+.total b { color: var(--fg); font-family: var(--font-display); font-size: 1.6rem; }
+
+
+/* 13. CAMISAS (vitrine) ------------------------------------------------------ */
+.shirt-view { --c: 44px; display: grid; grid-template-columns: 1fr 1.1fr; align-items: center; gap: 12px; padding: 36px clamp(20px, 5vw, 56px); }
+.shirt-fig { position: relative; display: grid; place-items: center; min-height: 300px; }
+.shirt-fig::before {                    /* halo vermelho atrás da camisa */
+  content: "";
+  position: absolute;
+  width: 70%; aspect-ratio: 1;
+  background: radial-gradient(closest-side, rgba(229,25,45,.4), transparent);
+  filter: blur(18px);
+  animation: pulse 5s ease-in-out infinite;
+}
+.shirt-fig svg, .shirt-fig img { position: relative; width: min(320px, 100%); height: auto; animation: float 6s ease-in-out infinite; filter: drop-shadow(0 24px 30px rgba(0,0,0,.6)); }
+.shirt-view.swap .shirt-fig > *, .shirt-view.swap .shirt-info > * { animation: swap .45s ease both; }
+.shirt-info h3 { margin: 10px 0 14px; font-family: var(--font-title); font-size: clamp(1.6rem, 3.6vw, 2.4rem); font-weight: 400; line-height: 1.1; }
+.shirt-info p { max-width: 46ch; margin: 0 0 26px; color: #d0cdc5; }
+.shirt-nav { display: flex; align-items: center; gap: 14px; }
+.count { min-width: 60px; text-align: center; font-family: var(--font-display); font-size: 1.3rem; letter-spacing: .1em; font-variant-numeric: tabular-nums; }
+
+.rail { position: relative; display: flex; gap: 10px; margin-top: 18px; overflow-x: auto; padding: 8px 4px 12px; scroll-snap-type: x proximity; }
+.rail button {
+  flex: none;
+  width: 116px;
+  padding: 10px 8px 8px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  scroll-snap-align: center;
+  transition: transform var(--ease), border-color var(--ease), background var(--ease);
+}
+.rail button svg, .rail button img { width: 60px; height: auto; }
+.rail button small { display: block; margin-top: 4px; color: var(--mut); font-size: .68rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.rail button:hover { transform: translateY(-4px); }
+.rail button.on { background: rgba(255,255,255,.12); border-color: var(--fg); }
+.rail button.on small { color: var(--fg); }
+
+
+/* 14. ESCUDOS --------------------------------------------------------------- */
+.crests { grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); }
+.crest-card { padding: 26px 20px 22px; text-align: center; }
+.crest-card h3 { font-size: 1.05rem; }
+.crest-card .fig { display: flex; align-items: center; justify-content: center; height: 140px; margin: 22px 0 8px; }
+/* object-fit: contain encaixa o escudo inteiro na caixa, sem cortar nem esticar */
+.crest-card .fig img, .crest-card .fig svg { width: 100%; max-width: 150px; height: 100%; object-fit: contain; filter: drop-shadow(0 14px 18px rgba(0,0,0,.55)); transition: transform var(--ease); }
+.crest-card:hover .fig img, .crest-card:hover .fig svg { transform: scale(1.1); }
+.crest-card h3 { margin-top: 8px; }
+
+
+/* 15. ÍDOLOS ----------------------------------------------------------------- */
+.idol { overflow: hidden; }
+.idol .ini {                            /* iniciais gigantes só com contorno, ao fundo */
+  position: absolute;
+  right: -6px; bottom: -22px;
+  z-index: 0;
+  font-family: var(--font-display);
+  font-size: 9rem;
+  font-weight: 800;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255,255,255,.14);
+  transition: transform var(--ease), -webkit-text-stroke-color var(--ease);
+}
+.idol:hover .ini { transform: translateX(-10px) scale(1.06); -webkit-text-stroke-color: rgba(229,25,45,.6); }
+.idol h3 { margin-top: 36px; }
+
+
+/* 16. CURIOSIDADES (cartões que viram) ----------------------------------------
+   Cada cartão tem duas faces. rotateY(180deg) vira o cartão; backface-visibility
+   esconde a face que está "de costas". */
+.flips { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 18px; }
+.flip { min-height: 220px; padding: 0; background: none; border: 0; text-align: left; cursor: pointer; perspective: 1000px; }
+.flip-in { display: block; position: relative; width: 100%; height: 100%; min-height: 220px; transition: transform .7s cubic-bezier(.2, .7, .2, 1); transform-style: preserve-3d; }
+.flip.on .flip-in, .flip:focus-visible .flip-in { transform: rotateY(180deg); }
+@media (hover: hover) { .flip:hover .flip-in { transform: rotateY(180deg); } }
+.face { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 26px; backface-visibility: hidden; }
+.face.back { transform: rotateY(180deg); justify-content: center; gap: 10px; font-size: 1.05rem; }
+.face.back::before { background: linear-gradient(160deg, #2a0e12, #0c0c0e); }
+.face .n { font-family: var(--font-display); font-size: 4.6rem; font-weight: 800; line-height: .9; color: transparent; -webkit-text-stroke: 2px var(--fg); }
+.face small { color: var(--mut); font-size: .72rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; }
+
+
+/* 17. RODAPÉ ----------------------------------------------------------------- */
+footer { display: grid; justify-items: center; gap: 12px; padding: 48px 24px; color: var(--mut); font-size: .85rem; text-align: center; border-top: 1px solid var(--line); }
+footer img { height: 51px; width: auto; opacity: .85; }
+footer p { margin: 0; }
+
+
+/* 18. CELULAR E ACESSIBILIDADE -------------------------------------------------
+   @media aplica regras só quando uma condição é verdadeira. */
+/* TABLET e abaixo (até 860px): o topo vira uma coluna e a vitrine de camisas também */
+@media (max-width: 860px) {
+  .hero-grid { grid-template-columns: 1fr; min-height: 0; text-align: left; }
+  .hero-crest { order: -1; width: min(230px, 50vw); }
+  .shirt-view { grid-template-columns: 1fr; }
+  .shirt-fig { min-height: 240px; }
+  .nav .btn { display: none; }                 /* sem espaço para o botão do menu */
+  .nav { padding-right: 12px; }
+  .nav nav a { padding: 9px 11px; font-size: .72rem; letter-spacing: .06em; }   /* links menores para caberem todos */
+}
+
+/* CELULAR (até 560px): menos espaço, números em 2 colunas, escudos em 2 colunas */
+@media (max-width: 560px) {
+  .sec { padding: 64px 0; }
+  .hero { padding-top: 96px; }                 /* deixa o menu flutuante livre do escudo */
+  .brand span { display: none; }               /* só o escudo no menu */
+  .arrow { width: 40px; height: 40px; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stat b { font-size: 2.4rem; }
+  .sec-head { margin-bottom: 30px; }
+  .tl-panel { padding: 30px 22px 26px; }
+  .shirt-view { padding: 28px 20px; }
+  .crests { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .crest-card { padding: 22px 12px 16px; }
+  .crest-card .fig { height: 104px; margin-top: 20px; }
+  .crest-card h3 { font-size: .9rem; }
+  .crest-card p { font-size: .82rem; }
+  .cut > .badge { min-width: 48px; padding: 6px 12px 6px 14px; font-size: 1.1rem; }
+  .card { padding: 26px 20px 22px; }
+  .idol .ini { font-size: 7rem; }
+  /* O menu rola para o lado; um degradê no fim avisa que há mais links */
+  .nav nav { -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent); mask-image: linear-gradient(90deg, #000 82%, transparent); }
+}
+
+/* Quem pede "reduzir movimento" no sistema não vê animações */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .js .rv { opacity: 1; transform: none; }
+}
